@@ -22,17 +22,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import ec.edu.uisek.githubclient.models.GithubUser
+import ec.edu.uisek.githubclient.models.Repository
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
 import org.intellij.lang.annotations.Language
 
 
 @Composable
 fun RepoItem(
-    repoName: String,
-    repoDescription: String,
-    repoLanguage: String?,
-    repoImage: String,
-
+    repository: Repository
 ){
     Card(
         modifier = Modifier.padding(8.dp).fillMaxWidth(),
@@ -43,29 +41,29 @@ fun RepoItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = repoImage,
-                contentDescription = "Avatar del propietario",
+                model = repository.owner.avatarUrl,
+                contentDescription = repository.name,
                 modifier = Modifier.size(60.dp),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text= repoName,
+                    text= repository.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                if(!repoDescription.isNullOrBlank()){
+                if(!repository.description.isNullOrBlank()){
                     Text(
-                        text= repoDescription,
+                        text= repository.description,
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 3
                     )
                 }
-                if(!repoLanguage.isNullOrBlank()){
+                if(!repository.language.isNullOrBlank()){
                     Text(
-                        text= repoLanguage,
+                        text= repository.language,
                         style = MaterialTheme.typography.labelMedium,
                         maxLines = 3
                     )
@@ -80,11 +78,17 @@ fun RepoItem(
 @Composable
 fun RepoItemPreview(){
     GithubClientTheme{
-        RepoItem(
-            repoName = "Nombre del Repositorio",
-            repoDescription = "Jetpack Compose",
-            repoLanguage = "kotlin",
-            repoImage= "https://avatars.githubusercontent.com/u/205797987?v=4"
+        val repository= Repository(
+            id="1234",
+            name = "Lab 3",
+            owner= GithubUser (
+                id="0001",
+                login = "gabrielalvarezosas",
+                avatarUrl = "https://avatars.githubusercontent.com/u/205797987?v=4"
+            ),
+            description = "Jetpack Comopose",
+            language = "kotlin"
         )
+        RepoItem( repository  )
     }
 }

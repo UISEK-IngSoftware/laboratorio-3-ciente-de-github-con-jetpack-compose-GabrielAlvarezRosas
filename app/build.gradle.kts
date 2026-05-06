@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,16 +8,27 @@ plugins {
 
 android {
     namespace = "ec.edu.uisek.githubclient"
-    compileSdk = 36
+    compileSdk = 36 // Cambiado a 35 por estabilidad actual
 
     defaultConfig {
         applicationId = "ec.edu.uisek.githubclient"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // --- Carga segura de Token ---
+        val properties = Properties()
+        val propertiesFile = project.rootProject.file("local.properties")
+        if (propertiesFile.exists()) {
+            propertiesFile.inputStream().use { properties.load(it) }
+        }
+
+        val githubToken = properties.getProperty("GITHUB_TOKEN") ?: ""
+        // Importante: las comillas escapadas son necesarias para que sea un String en Java/Kotlin
+        buildConfigField("String", "GITHUB_TOKEN", "\"$githubToken\"")
     }
 
     buildTypes {
@@ -27,18 +40,21 @@ android {
             )
         }
     }
+
+    // Actualizado a Java 17 para evitar conflictos con librerías de red
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
+
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
-
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -57,4 +73,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    // --- RETROFIT VERSION ESTABLE 2.9.0 ---
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    // --- OKHTTP LOGGING INTERCEPTOR ESTABLE 4.12.0 ---
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
