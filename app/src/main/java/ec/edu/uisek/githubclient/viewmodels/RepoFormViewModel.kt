@@ -38,6 +38,40 @@ class RepoFormViewModel : ViewModel() {
         }
     }
 
+    //Agregamos las funciones de patch y delete
+    fun updateRepository(owner: String, repo: String, name: String, description: String?){
+        viewModelScope.launch {
+            _isLoanding.value = true
+            _errorMsg.value = null
+            try{
+                val payload = RepositoryPayload(name, description)
+                apiService.updateRepository(owner, repo, payload)
+                _isSuccess.value = true
+            }catch (e: Exception){
+                _errorMsg.value="Error al actualizar el repositorio: ${e.localizedMessage}"
+                e.printStackTrace()
+            }finally {
+                _isLoanding.value = false
+            }
+        }
+    }
+
+    fun deleteRepository(owner: String, repo: String){
+        viewModelScope.launch {
+            _isLoanding.value = true
+            _errorMsg.value = null
+            try{
+                apiService.deleteRepository(owner, repo)
+                _isSuccess.value = true
+            }catch (e: Exception){
+                _errorMsg.value="Error al eliminar el repositorio: ${e.localizedMessage}"
+                e.printStackTrace()
+            }finally {
+                _isLoanding.value = false
+            }
+        }
+    }
+
     fun resetSuccess(){
         _isSuccess.value = false
     }

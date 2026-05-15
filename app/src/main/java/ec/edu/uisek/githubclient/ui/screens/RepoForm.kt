@@ -48,6 +48,11 @@ fun RepoFormPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoForm(
+    //agregamos nuevos parámetros que se usaran según la acción a realizar
+    owner: String = "",
+    initialName: String = "",
+    initialDescription: String = "",
+    isEditing: Boolean = false,
     onSaveSuccess: () -> Unit ={},
     onBackClick: () -> Unit = {},
     viewModel: RepoFormViewModel = viewModel()
@@ -56,8 +61,9 @@ fun RepoForm(
     val isSuccess by viewModel.isSuccess.collectAsState()
     val errorMsg by viewModel.errorMsg.collectAsState()
 
-    var name by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
+    //modificamos los parámetros para que en caso de editar se muestren datos previos
+    var name by remember { mutableStateOf(initialName) }
+    var description by remember { mutableStateOf(initialDescription) }
 
     LaunchedEffect(key1= isSuccess){
         if(isSuccess){
@@ -68,7 +74,8 @@ fun RepoForm(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nuevo Repositorio") },
+                //Se agrega un titulo dinámico según la acción a realizar
+                title = { Text(if (isEditing) "Editar Repositorio" else "Nuevo Repositorio") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -99,12 +106,17 @@ fun RepoForm(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
             ) {
+                LaunchedEffect(initialName, initialDescription) {
+                    name = initialName
+                    description = initialDescription
+                }
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text("Nombre del repositorio") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = true
                 )
 
                 OutlinedTextField(
@@ -116,11 +128,18 @@ fun RepoForm(
                 )
 
                 Button(
-                    onClick = { viewModel.createRepository(name, description) },
+                    onClick = {
+                        if (isEditing){
+                            //Si estamos editando, llamamos a la función de actualización
+                            viewModel.updateRepository(owner, initialName, name, description)
+                        }else{
+                            viewModel.createRepository(name, description)
+                        }
+                   },
                     enabled = name.isNotBlank(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Guardar Repositorio")
+                    Text(if (isEditing)"Actualizar Cambios" else "Guardar Repositorio")
                 }
             }
         }
