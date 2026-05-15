@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.uisek.githubclient.models.Repository
 import ec.edu.uisek.githubclient.ui.components.RepoItem
-import ec.edu.uisek.githubclient.viewmodels.RepoFormViewModel
 import ec.edu.uisek.githubclient.viewmodels.RepoListViewModel
 
 
@@ -46,7 +45,6 @@ import ec.edu.uisek.githubclient.viewmodels.RepoListViewModel
 fun RepoList(
     modifier: Modifier = Modifier,
     viewModel: RepoListViewModel = viewModel(),
-    formViewModel: RepoFormViewModel = viewModel(),
     onNavigateToForm: () -> Unit = {},
     // añadimos nuevos parámetros para editar y eliminar
     onNavigateToEdit: (Repository) -> Unit = {},
@@ -56,14 +54,7 @@ fun RepoList(
     val repos by viewModel.repos.collectAsState()
     val isLoading by viewModel.isLoanding.collectAsState()
     val errorMsg by viewModel.errorMsg.collectAsState()
-    val formSuccess by formViewModel.isSuccess.collectAsState()
 
-    LaunchedEffect(formSuccess) {
-        if (formSuccess) {
-            viewModel.fetchRepos()
-            formViewModel.resetSuccess() // Muy importante reiniciar el estado
-        }
-    }
 
     Scaffold(
         floatingActionButton = {
@@ -110,26 +101,23 @@ fun RepoList(
                     // Usamos el ID del repo como clave para que las animaciones de swipe funcionen correctamente
                     items(
                         count = repos.size,
-                        key = { index -> "${repos[index].id}_${repos.size}" }
+                        key = { index -> repos[index].id }
                     ) { i ->
                         val repo = repos[i]
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = { dismissValue ->
-                                // Permitimos que el swipe se complete visualmente
-                                dismissValue == SwipeToDismissBoxValue.EndToStart
+                                if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
+                                    onNavigateToDelete(repo)
+                                    true // Confirmamos el barrido visual
+                                } else false
                             }
                         )
-                        LaunchedEffect(dismissState.currentValue) {
-                            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                                onNavigateToDelete(repo)
-                            }
-                        }
-
-                        LaunchedEffect(repos) {
-                            if (!repos.contains(repo)) {
+                        LaunchedEffect(repo.id) {
+                            if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
                                 dismissState.reset()
                             }
                         }
+
                         SwipeToDismissBox(
                             state = dismissState,
                             enableDismissFromEndToStart =  true,

@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
                             currentScreen = "RepoForm"
                         },
                         onNavigateToDelete = {repo ->
-                            formViewModel.deleteRepository(repo.owner.login, repo.name)
+                            listViewModel.deleteRepository(repo.owner.login, repo.name)
                         }
                     )
 

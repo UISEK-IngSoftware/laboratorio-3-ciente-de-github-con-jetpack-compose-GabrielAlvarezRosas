@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ec.edu.uisek.githubclient.models.Repository
 import ec.edu.uisek.githubclient.services.RetrofitClient
+import ec.edu.uisek.githubclient.services.RetrofitClient.apiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,22 @@ class RepoListViewModel: ViewModel() {
                 _repos.value = response
             } catch (e: Exception){
                 _errorMsg.value = "Error al cargar repositorios: ${e.localizedMessage}"
+                e.printStackTrace()
+            }finally {
+                _isLoanding.value = false
+            }
+        }
+    }
+    fun deleteRepository(owner: String, repo: String){
+        viewModelScope.launch {
+            _isLoanding.value = true
+            _errorMsg.value = null
+            try{
+                apiService.deleteRepository(owner, repo)
+                fetchRepos()
+
+            }catch (e: Exception){
+                _errorMsg.value="Error al eliminar el repositorio: ${e.localizedMessage}"
                 e.printStackTrace()
             }finally {
                 _isLoanding.value = false

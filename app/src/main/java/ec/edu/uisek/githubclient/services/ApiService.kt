@@ -3,6 +3,7 @@ package ec.edu.uisek.githubclient.services
 import androidx.compose.ui.text.style.TextDirection
 import ec.edu.uisek.githubclient.models.Repository
 import ec.edu.uisek.githubclient.models.RepositoryPayload
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -39,5 +40,5 @@ interface ApiService {
     suspend fun deleteRepository(
         @Path("owner") owner: String,
         @Path("repo") repo: String
-    ): Repository
+    ): Response<Unit>
 }

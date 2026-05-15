@@ -21,6 +21,8 @@ class RepoFormViewModel : ViewModel() {
     private val _errorMsg = MutableStateFlow<String?>(null)
     val errorMsg: StateFlow<String?> = _errorMsg.asStateFlow()
 
+
+
     fun createRepository(name: String, description: String?){
         viewModelScope.launch {
             _isLoanding.value = true
@@ -56,23 +58,10 @@ class RepoFormViewModel : ViewModel() {
         }
     }
 
-    fun deleteRepository(owner: String, repo: String){
-        viewModelScope.launch {
-            _isLoanding.value = true
-            _errorMsg.value = null
-            try{
-                apiService.deleteRepository(owner, repo)
-                _isSuccess.value = true
-            }catch (e: Exception){
-                _errorMsg.value="Error al eliminar el repositorio: ${e.localizedMessage}"
-                e.printStackTrace()
-            }finally {
-                _isLoanding.value = false
-            }
-        }
-    }
+
 
     fun resetSuccess(){
         _isSuccess.value = false
     }
+
 }
