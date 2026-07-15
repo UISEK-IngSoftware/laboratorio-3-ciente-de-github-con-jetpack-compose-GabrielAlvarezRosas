@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.uisek.githubclient.models.Repository
+import ec.edu.uisek.githubclient.services.AuthService
+import ec.edu.uisek.githubclient.ui.screens.Loginform
 import ec.edu.uisek.githubclient.ui.screens.RepoForm
 import ec.edu.uisek.githubclient.ui.screens.RepoList
 import ec.edu.uisek.githubclient.ui.theme.GithubClientTheme
@@ -28,20 +30,27 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val authService = AuthService(this)
 
         setContent {
             GithubClientTheme {
                 val listViewModel: RepoListViewModel = viewModel()
-                //añadimos el formviewmodel para el delete
-                val formViewModel: RepoFormViewModel = viewModel()
-                var currentScreen by remember { mutableStateOf("RepoList") }
+                var currentScreen by remember { mutableStateOf(
+                    if (authService.isLoggedIn()) "RepoList" else "login") }
                 var selectedRepo by remember { mutableStateOf<Repository?>(null) }
                 when (currentScreen) {
+                    "login" -> Loginform (
+                        onLoginSuccess = {currentScreen="repoList"}
+                    )
                     "RepoList" -> RepoList(
                         viewModel = listViewModel,
                         onNavigateToForm = {
                             selectedRepo = null // IMPORTANTE: Limpiar para nuevo repo
                             currentScreen = "RepoForm"
+                        },
+                        onLogout = {
+                            authService.logout()
+                            currentScreen = "login"
                         },
                     //agregamos los parámetros para editar y eliminar
                         onNavigateToEdit = {repo ->
@@ -54,6 +63,7 @@ class MainActivity : ComponentActivity() {
                     )
 
                     "RepoForm" -> RepoForm(
+                        //Se agrega los valores previos en caso de actualizar, sino, se inicializan vacíos
                         owner= selectedRepo?.owner?.login?:"",
                         initialName = selectedRepo?.name ?: "",
                         initialDescription = selectedRepo?.description ?: "",

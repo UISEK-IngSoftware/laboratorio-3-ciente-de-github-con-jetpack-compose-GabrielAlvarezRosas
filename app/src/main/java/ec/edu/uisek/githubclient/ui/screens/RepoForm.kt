@@ -74,7 +74,7 @@ fun RepoForm(
     Scaffold(
         topBar = {
             TopAppBar(
-                //Se agrega un titulo dinámico según la acción a realizar
+                //Se agrega un titulo según la acción a realizar
                 title = { Text(if (isEditing) "Editar Repositorio" else "Nuevo Repositorio") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {

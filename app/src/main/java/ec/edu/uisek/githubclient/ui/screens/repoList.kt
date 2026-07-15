@@ -3,13 +3,17 @@ package ec.edu.uisek.githubclient.ui.screens
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -52,7 +56,8 @@ fun RepoList(
     onNavigateToForm: () -> Unit = {},
     // añadimos nuevos parámetros para editar y eliminar
     onNavigateToEdit: (Repository) -> Unit = {},
-    onNavigateToDelete: (Repository) -> Unit = {}
+    onNavigateToDelete: (Repository) -> Unit = {},
+    onLogout:() -> Unit = {}
 
 
 ){
@@ -60,22 +65,38 @@ fun RepoList(
     val isLoading by viewModel.isLoanding.collectAsState()
     val errorMsg by viewModel.errorMsg.collectAsState()
 
+    //creamos una variable para el diálogo de eliminar
     var showDeleteDialog by remember { mutableStateOf(false) }
     var repoToDelete by remember { mutableStateOf<Repository?>(null) }
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToForm,
-                shape = CircleShape,
-                elevation = FloatingActionButtonDefaults.elevation(8.dp),
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Añadir repositorio"
-                )
+            Column(horizontalAlignment = Alignment.End) {
+                FloatingActionButton(
+                    onClick = onLogout,
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                        contentDescription = "Cerrar sesión"
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                FloatingActionButton(
+                    onClick = onNavigateToForm,
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Añadir repositorio"
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -105,7 +126,7 @@ fun RepoList(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Usamos el ID del repo como clave para que las animaciones de swipe funcionen correctamente
+                    // Usamos el id del repo como clave para que las animaciones de swipe funcionen correctamente
                     items(
                         count = repos.size,
                         key = { index -> repos[index].id }
@@ -113,7 +134,7 @@ fun RepoList(
                         val repo = repos[i]
                         val dismissState = rememberSwipeToDismissBoxState(
                             confirmValueChange = { dismissValue ->
-
+                                //Al ejecutar el swipe se actualizan las variables y se inicia el dialogo
                                 if (dismissValue == SwipeToDismissBoxValue.EndToStart) {
 
                                     repoToDelete = repo
@@ -125,6 +146,7 @@ fun RepoList(
                                 }
                             }
                         )
+                        //Se resetea el dismiss state una vez cerrado el swipe
                         LaunchedEffect(repo.id) {
                             if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
                                 dismissState.reset()
@@ -170,6 +192,7 @@ fun RepoList(
 
                                     IconButton(onClick = {onNavigateToEdit(repo)}) {
                                      Icon(
+                                         //usamos el icono por defecto para editar
                                          imageVector = Icons.Default.Edit,
                                          contentDescription= "Editar repositorio",
                                          tint = MaterialTheme.colorScheme.primary
@@ -179,15 +202,17 @@ fun RepoList(
                         }
                     }
                 }
+                //el cuadro de diálogo se activa solo tras un swipe que da valor a ambos parámtros
                 if (showDeleteDialog && repoToDelete != null) {
 
                     AlertDialog(
 
+                        //para cuando el usuario topa fuera del mensaje
                         onDismissRequest = {
                             showDeleteDialog = false
                             repoToDelete = null
                         },
-
+                        //contenido del mensaje
                         title = {
                             Text("Eliminar repositorio")
                         },
@@ -195,7 +220,7 @@ fun RepoList(
                         text = {
                             Text("¿Estás seguro de eliminar este repositorio?")
                         },
-
+                        //botones del mensaje
                         confirmButton = {
 
                             TextButton(

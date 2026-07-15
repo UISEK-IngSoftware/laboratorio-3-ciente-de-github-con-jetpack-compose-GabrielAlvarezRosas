@@ -39,12 +39,15 @@ class RepoListViewModel: ViewModel() {
             }
         }
     }
+
+    //se crea la funciónn Delete
     fun deleteRepository(owner: String, repo: String){
         viewModelScope.launch {
             _isLoanding.value = true
             _errorMsg.value = null
             try{
                 apiService.deleteRepository(owner, repo)
+                //se vuelve a cargar la lista trás cargar
                 fetchRepos()
 
             }catch (e: Exception){

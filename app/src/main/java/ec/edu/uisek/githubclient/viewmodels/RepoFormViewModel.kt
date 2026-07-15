@@ -40,7 +40,7 @@ class RepoFormViewModel : ViewModel() {
         }
     }
 
-    //Agregamos las funciones de patch y delete
+    //Agregamos la función patch
     fun updateRepository(owner: String, repo: String, name: String, description: String?){
         viewModelScope.launch {
             _isLoanding.value = true
