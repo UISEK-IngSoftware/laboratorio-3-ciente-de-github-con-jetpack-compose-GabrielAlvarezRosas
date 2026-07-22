@@ -36,13 +36,15 @@ class MainActivity : ComponentActivity() {
             GithubClientTheme {
                 val listViewModel: RepoListViewModel = viewModel()
                 var currentScreen by remember { mutableStateOf(
-                    if (authService.isLoggedIn()) "RepoList" else "login") }
+                    if (authService.isLoggedIn()) "repoList" else "login") }
                 var selectedRepo by remember { mutableStateOf<Repository?>(null) }
                 when (currentScreen) {
                     "login" -> Loginform (
-                        onLoginSuccess = {currentScreen="repoList"}
+                        onLoginSuccess = {
+                            listViewModel.fetchRepos() // Actualiza la lista de repos al loguearse
+                            currentScreen="repoList"}
                     )
-                    "RepoList" -> RepoList(
+                    "repoList" -> RepoList(
                         viewModel = listViewModel,
                         onNavigateToForm = {
                             selectedRepo = null // IMPORTANTE: Limpiar para nuevo repo
@@ -71,10 +73,10 @@ class MainActivity : ComponentActivity() {
                         onSaveSuccess = {
                             listViewModel.fetchRepos()
                             selectedRepo = null
-                            currentScreen = "RepoList" },
+                            currentScreen = "repoList" },
                         onBackClick = {
                             selectedRepo = null
-                            currentScreen = "RepoList" }
+                            currentScreen = "repoList" }
                     )
                 }
             }

@@ -50,7 +50,9 @@ fun Loginform(
         OutlinedTextField(
             value = username,
             onValueChange = {username = it},
-            label = {Text(text="Usuario")}
+            label = {Text(text="Usuario")},
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
         )
         Spacer(modifier = Modifier.height(height = 16.dp))
         OutlinedTextField(

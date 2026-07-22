@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.edu.uisek.githubclient.viewmodels.RepoFormViewModel
+import androidx.compose.material3.CircularProgressIndicator
 
 // Preview corregido
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,6 +100,9 @@ fun RepoForm(
                 .padding(16.dp),
             contentAlignment = androidx.compose.ui.Alignment.Center // Centro el contenido del Box
         ) {
+            if (isLoanding) {
+                CircularProgressIndicator()
+            }
             Column(
                 // Ajustamos la columna para que no ocupe todo el alto,
                 // sino solo lo necesario y esté centrada

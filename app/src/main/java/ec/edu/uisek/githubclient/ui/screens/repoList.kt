@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +47,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepoList(
@@ -69,11 +69,14 @@ fun RepoList(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var repoToDelete by remember { mutableStateOf<Repository?>(null) }
 
+    //variable para controlar advertencia del logout
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         floatingActionButton = {
             Column(horizontalAlignment = Alignment.End) {
                 FloatingActionButton(
-                    onClick = onLogout,
+                    onClick = { showLogoutDialog = true },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
@@ -81,6 +84,24 @@ fun RepoList(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                         contentDescription = "Cerrar sesión"
+                    )
+                }
+                if (showLogoutDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showLogoutDialog = false },
+                        title = { Text("¿Cerrar sesión?") },
+                        text = { Text("Tendrás que ingresar tu token de nuevo.") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showLogoutDialog = false
+                                onLogout() // Aquí sí ejecutas la acción real
+                            }) { Text("Salir") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showLogoutDialog = false }) {
+                                Text("Cancelar")
+                            }
+                        }
                     )
                 }
 
